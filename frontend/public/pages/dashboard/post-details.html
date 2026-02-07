@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      hr {
+        margin-top: 30px;
+      }
+    </style>
+    <script type="module">
+      import { auth } from "/api/request.js";
+      import * as usersApi from "/api/users.js";
+      import * as authApi from "/api/auth.js";
+      import * as postsApi from "/api/posts.js";
+
+      authApi.getProfile();
+
+      const getId = () => window.location.pathname.split("/").filter(Boolean).at(-1);
+
+      const handleDeletePost = async (id) => {
+        const data = await postsApi.deletePost({ id: getId() });
+        if (!data?.success) return;
+        alert(data.message || "Post deleted");
+        console.log(data, "data-deleted-post");
+        getPost()
+      };
+
+      const getPost = async () => {
+        postOutput.innerHTML = "Loading...";
+        const data = await postsApi.getPost({ id: getId() });
+
+        if (!data?.success) return (postOutput.innerHTML = "Empty");
+
+        console.log(data, "data-post");
+
+        postOutput.innerHTML = `
+            <ul>
+                <li>
+                    <strong>Name: </strong> ${data.data.name}
+                </li>
+                <li>
+                    <strong>Description: </strong> ${data.data.description}
+                </li>
+                <li>
+                    <strong>Date: </strong> ${data.data.date}
+                </li>
+           </ul>
+        `;
+      };
+      getPost();
+
+      const handleUpdatePost = async (e) => {
+        e.preventDefault();
+        const { name, description, date } = e.target;
+        const body = {};
+        if (name.value) body.name = name.value;
+        if (description.value) body.description = description.value;
+        if (date.value) body.date = date.value;
+
+        postOutput.innerHTML = "Loading...";
+
+        const data = await postsApi.updatePost({ id: getId(), body });
+
+        getPost();
+
+        if (!data.success) return;
+        alert(data.message || "post updated");
+        console.log(data, "data-updated-post");
+      };
+
+      document.querySelector("button#get-post-btn").addEventListener("click", getPost);
+      document.querySelector("#update-post-form").addEventListener("submit", handleUpdatePost);
+      document.querySelector("button#delete-post-btn").addEventListener("click", handleDeletePost);
+    </script>
+  </head>
+  <body>
+    <a href="/dashboard">Dashboard</a>
+
+    <hr />
+    <h1>Post</h1>
+    <hr />
+
+    <div id="postOutput">Empty</div>
+
+    <hr />
+    <h2>Update Post</h2>
+    <form action="" id="update-post-form">
+      <input type="text" name="name" placeholder="name" />
+      <input type="text" name="description" placeholder="description" />
+      <input type="date" name="date" placeholder="date" />
+      <button>Update</button>
+    </form>
+
+    <hr />
+    <button class="" id="delete-post-btn">Delete post</button>
+    <button class="" id="get-post-btn">Get post</button>
+  </body>
+</html>

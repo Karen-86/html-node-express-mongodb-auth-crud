@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      hr {
+        margin-top: 30px;
+      }
+    </style>
+    <script type="module">
+      import { auth } from "/api/request.js";
+      import * as usersApi from "/api/users.js";
+      import * as authApi from "/api/auth.js";
+
+      authApi.getProfile();
+      let TARGETUSER = {};
+
+      const getId = () => window.location.pathname.split("/").filter(Boolean).at(-1);
+
+      const handleDeleteProfile = async (id) => {
+        const data = await usersApi.deleteUser({ id: getId() });
+        if (!data?.success) return;
+        console.log(data, "data-deleted-user");
+      };
+
+      const getUser = async () => {
+        userOutput.innerHTML = "Loading...";
+        const data = await usersApi.getUser({ id: getId() });
+
+        if (!data?.success) return (userOutput.innerHTML = "");
+
+        console.log(data, "data-user");
+
+        TARGETUSER = data.data;
+
+        userOutput.innerHTML = `
+            <ul>
+                <li>
+                    <strong>Name: </strong> ${data.data.name}
+                </li>
+                <li>
+                    <strong>Age: </strong> ${data.data.age}
+                </li>
+                <li>
+                    <strong>Email: </strong> ${data.data.email}
+                </li>
+                <li>
+                    <strong>Id: </strong> ${data.data._id}
+                </li>
+                <li>
+                    <strong>Roles: </strong>
+                    <ul>
+                     ${data.data.roles.map((role) => `<li>${role}</li>`).join("")}
+                    </ul>
+                </li>
+           </ul>
+        `;
+
+        checkboxes.forEach((checkbox) => {
+          const isChecked = data.data.roles.includes(checkbox.dataset.value);
+          checkbox.checked = isChecked;
+        });
+      };
+      getUser();
+
+      const handleUpdateRole = (e) => {
+        let roles = [...TARGETUSER.roles];
+        const value = e.target.dataset.value;
+        const isChecked = e.target.checked;
+
+        if (isChecked) {
+          if (!roles.includes(value)) roles.push(value);
+        } else {
+          roles = roles.filter((role) => role !== value);
+        }
+        usersApi.updateUserByAdmin({
+          id: getId(),
+          body: { roles },
+          cb: (data) => {
+            getUser();
+            if (!data.success) return data;
+            alert(data.message || "User Updated");
+          },
+        });
+      };
+
+      document.querySelector("button#get-user-btn").addEventListener("click", getUser);
+      document.querySelector("button#delete-user-btn").addEventListener("click", handleDeleteProfile);
+
+      const checkboxes = document.querySelectorAll("input[type='checkbox']");
+      checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener("change", handleUpdateRole);
+      });
+    </script>
+  </head>
+  <body>
+    <a href="/dashboard">Dashboard</a>
+
+    <hr />
+    <h1>User Profile</h1>
+    <hr />
+
+    <div id="userOutput">Empty</div>
+
+    <hr />
+    <h1>Update Roles <span style="font-size: 12px">(hidden from regular users)</span></h1>
+
+    <label for="user-checkbox">User</label>
+    <input type="checkbox" id="user-checkbox" data-value="user" />
+    <br />
+    <label for="admin-checkbox">Admin</label>
+    <input type="checkbox" id="admin-checkbox" data-value="admin" />
+    <br />
+
+    <label for="super-admin-checkbox">Super Admin</label>
+    <input type="checkbox" id="super-admin-checkbox" data-value="superAdmin" />
+
+    <hr />
+    <button class="" id="delete-user-btn">Delete user</button>
+    <button class="" id="get-user-btn">Get user</button>
+  </body>
+</html>

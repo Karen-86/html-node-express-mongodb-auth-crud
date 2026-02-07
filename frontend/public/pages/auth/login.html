@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script type="module">
+      import * as authApi from "/api/auth.js";
+
+      authApi.getProfile();
+
+      document.querySelector("#login-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const { email, password } = e.target;
+        authApi.login({ body: { email: email.value, password: password.value } });
+      });
+    </script>
+  </head>
+  <body>
+    <a href="/register">Register</a>
+
+    <h1>Login page</h1>
+
+    <br />
+    <br />
+    <form action="" id="login-form">
+      <input type="email" name="email" placeholder="email" />
+      <input type="text" name="password" placeholder="password" />
+      <button>Login</button>
+
+      <br />
+      <br />
+      <a href="/forgot-password">Forgot Password</a>
+
+      <br />
+      <br />
+      <button>
+        <a href="http://localhost:8000/api/v1/auth/google"> Sign in with Google </a>
+      </button>
+    </form>
+  </body>
+</html>

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      hr {
+        margin-top: 30px;
+      }
+    </style>
+
+    <script type="module">
+      import { auth } from "/api/request.js";
+      import * as authApi from "/api/auth.js";
+      import * as usersApi from "/api/users.js";
+
+      const getProfile = async () => {
+        userOutput.innerHTML = "Loading...";
+        const data = await authApi.getProfile();
+
+        if (!data?.success) return (userOutput.innerHTML = "");
+        console.log(data, "data-user");
+
+        userOutput.innerHTML = `
+            <ul>
+                <li>
+                    <strong>Email Verified: </strong> ${data.data.emailVerified ? "Yes" : "No"}
+                </li>
+                <li>
+                    <strong>Roles: </strong>
+                    <ul>
+                     ${data.data.roles.map((role) => `<li>${role}</li>`).join("")}
+                    </ul>
+                </li>
+             
+           </ul>
+        `;
+      };
+      getProfile();
+
+      const handleDeleteProfile = async () => {
+        const data = await usersApi.deleteUser({ id: auth.currentUser._id });
+        if (!data?.success) return;
+        console.log(data, "data-deleted-user");
+      };
+
+      const handleUpdatePassword = async (e) => {
+        e.preventDefault();
+        const { currentPassword, newPassword } = e.target;
+        const body = {};
+        if (currentPassword.value) body.currentPassword = currentPassword.value;
+        if (newPassword.value) body.newPassword = newPassword.value;
+
+        const data = await authApi.updatePassword({ body });
+        if (!data.success) return;
+        console.log(data, "data-update-password");
+      };
+      const handleAddPassword = async (e) => {
+        e.preventDefault();
+        const { newPassword } = e.target;
+        const body = {};
+        if (newPassword.value) body.newPassword = newPassword.value;
+
+        const data = await authApi.addPassword({ body });
+        if (!data.success) return;
+        console.log(data, "data-add-password");
+      };
+
+      const handleVerifyEmail = async () => {
+        const data = await authApi.verifyEmail();
+        if (!data.success) return;
+        console.log(data, "data-verify-email");
+      };
+
+      const handleUpdateEmail = async (e) => {
+        e.preventDefault();
+        const { newEmail } = e.target;
+        const body = {};
+        if (newEmail.value) body.newEmail = newEmail.value;
+
+        const data = await authApi.updateEmail({ body });
+        if (!data.success) return;
+        console.log(data, "data-update-email");
+      };
+
+      document.querySelector("button#delete-account-btn").addEventListener("click", handleDeleteProfile);
+      document.querySelector("#verify-user-btn").addEventListener("click", handleVerifyEmail);
+      document.querySelector("#update-password-form").addEventListener("submit", handleUpdatePassword);
+      document.querySelector("#add-password-form").addEventListener("submit", handleAddPassword);
+      document.querySelector("#update-email-form").addEventListener("submit", handleUpdateEmail);
+    </script>
+  </head>
+  <body>
+    <a href="/dashboard">dashboard</a>
+    <hr />
+    <h1>Settings page</h1>
+
+    <hr />
+    <div id="userOutput">Empty</div>
+
+    <hr />
+    <h2>Update password</h2>
+    <form action="" id="update-password-form">
+      <input type="text" name="currentPassword" placeholder="current password" />
+      <input type="text" name="newPassword" placeholder="new password" />
+      <button>Update</button>
+    </form>
+
+    <hr />
+    <h2>Add password</h2>
+    <form action="" id="add-password-form">
+      <input type="text" name="newPassword" placeholder="new password" />
+      <button>Add</button>
+    </form>
+
+    <hr />
+    <h2>Update email</h2>
+    <form action="" id="update-email-form">
+      <input type="text" name="newEmail" placeholder="new email" />
+      <button>Update</button>
+    </form>
+
+    <hr />
+    <button class="" id="delete-account-btn">Delete Account</button>
+    <button class="" id="verify-user-btn">Verify Email</button>
+
+    <div style="display: inline-flex; vertical-align: middle">
+      <button>
+        <a href="http://localhost:8000/api/v1/auth/google" title=""> Sign in with Google </a>
+      </button>
+      <button title="To retain your password login, make sure your email is verified before signing in with Google.">
+        !
+      </button>
+    </div>
+  </body>
+</html>

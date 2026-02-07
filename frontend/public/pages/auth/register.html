@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script type="module">
+      import * as authApi from "/api/auth.js";
+
+      authApi.getProfile();
+
+      document.querySelector("#register-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const { name, age, email, password, repeatPassword } = e.target;
+        const body = {};
+
+        if (name.value) body.name = name.value;
+        if (age.value) body.age = age.value;
+        if (email.value) body.email = email.value;
+        if (password.value) body.password = password.value;
+        if (repeatPassword.value) body.repeatPassword = repeatPassword.value;
+        authApi.register({ body });
+      });
+    </script>
+  </head>
+  <body>
+    <a href="/login">Login</a>
+
+    <h1>Register page</h1>
+
+    <br />
+    <br />
+    <form id="register-form">
+      <input type="text" name="name" placeholder="name" />
+      <input type="number" name="age" placeholder="age" />
+      <input type="email" name="email" placeholder="email" />
+      <input type="text" name="password" placeholder="password" />
+      <input type="text" name="repeatPassword" placeholder="repeat password" />
+      <button>Register</button>
+    </form>
+
+    <br />
+    <br />
+    <button>
+      <a href="http://localhost:8000/api/v1/auth/google"> Sign up with Google </a>
+    </button>
+  </body>
+</html>

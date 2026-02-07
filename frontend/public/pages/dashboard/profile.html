@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      hr {
+        margin-top: 30px;
+      }
+    </style>
+    <script type="module">
+      import { auth } from "/api/request.js";
+      import * as authApi from "/api/auth.js";
+      import * as usersApi from "/api/users.js";
+      import * as postsApi from "/api/posts.js";
+
+      let imageSrc = ''
+
+      const getProfile = async () => {
+        userOutput.innerHTML = "Loading...";
+        const data = await authApi.getProfile();
+
+        if (!data?.success) return (userOutput.innerHTML = "");
+        console.log(data, "data-user");
+
+        userOutput.innerHTML = `
+           <img src="${data.data.avatar || "/assets/images/avatar-placeholder.png"}" style='width:100px;height:100px;object-fit:cover' />
+
+            <ul>
+                <li>
+                    <strong>Name: </strong> ${data.data.name}
+                </li>
+                <li>
+                    <strong>Age: </strong> ${data.data.age}
+                </li>
+                <li>
+                    <strong>Email: </strong> ${data.data.email}
+                </li>
+                <li>
+                    <strong>Id: </strong> ${data.data._id}
+                </li>
+                  <li>
+                    <strong>Roles: </strong>
+                    <ul>
+                     ${data.data.roles.map((role) => `<li>${role}</li>`).join("")}
+                    </ul>
+                </li>
+           </ul>
+        `;
+      };
+
+      getProfile();
+
+      const handleDeleteProfile = async (id) => {
+        const data = await usersApi.deleteUser({ id: auth.currentUser._id });
+        if (!data?.success) return;
+        console.log(data, "data-deleted-user");
+      };
+
+      const handleUpdateProfile = async (e) => {
+        e.preventDefault();
+        const { name, age } = e.target;
+        const body = {};
+        if (name.value) body.name = name.value;
+        if (age.value) body.age = age.value;
+        if(imageSrc) body.avatar = imageSrc
+
+        userOutput.innerHTML = "Loading...";
+        const data = await usersApi.updateUser({ id: auth.currentUser._id, body });
+
+        getProfile();
+
+        if (!data.success) return;
+        alert(data.message || "user updated");
+        console.log(data, "data-updated-user");
+      };
+
+      const handleCreatePost = async (e) => {
+        e.preventDefault();
+        const { name, description, date } = e.target;
+        const body = {};
+        if (name.value) body.name = name.value;
+        if (description.value) body.description = description.value;
+        if (date.value) body.date = date.value;
+
+        const data = await postsApi.createPost({ body });
+        if (!data.success) return;
+
+        alert(data.message || "post created");
+        console.log(data, "data-created-post");
+      };
+
+      const convertToBase64 = (blob) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(blob);
+          reader.onload = () => {
+            if (reader.result) {
+              resolve(reader.result);
+            } else {
+              reject(new Error("Failed to read blob as Base64"));
+            }
+          };
+          reader.onerror = () => {
+            reject(new Error("Error reading file as Base64"));
+          };
+        });
+      };
+
+      const onSelectFile = async (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+          // const compressedBlob = await compressImage(e.target.files[0], 300);
+          const imageBase64 = await convertToBase64(e.target.files[0]);
+          imageSrc = imageBase64
+
+          // e.target.value = "";
+        }
+      };
+
+      document.querySelector("button#get-profile-btn").addEventListener("click", getProfile);
+      document.querySelector("button#delete-user-btn").addEventListener("click", handleDeleteProfile);
+      document.querySelector("#login-form").addEventListener("submit", handleUpdateProfile);
+      document.querySelector("#create-post-form").addEventListener("submit", handleCreatePost);
+      document.querySelector("#upload-avatar").addEventListener("change", onSelectFile);
+    </script>
+  </head>
+  <body>
+    <a href="/dashboard">Dashboard</a>
+
+    <hr />
+    <h1>My Profile</h1>
+    <hr />
+
+    <div id="userOutput">Empty</div>
+    <hr />
+
+    <h2>Update Profile</h2>
+    <form action="" id="login-form">
+      <input type="text" name="name" placeholder="name" />
+      <input type="text" name="age" placeholder="age" />
+      <button>Update</button>
+    </form>
+    <br>
+    <input id="upload-avatar" type="file" accept="image/*"  />
+
+    <hr />
+    <h2>Create Post</h2>
+    <form action="" id="create-post-form">
+      <input type="text" name="name" placeholder="name" />
+      <input type="text" name="description" placeholder="description" />
+      <input type="date" name="date" placeholder="date" />
+      <button>Create</button>
+    </form>
+
+    <hr />
+    <button class="" id="delete-user-btn">Delete user</button>
+    <button class="" id="get-profile-btn">Get profile</button>
+  </body>
+</html>

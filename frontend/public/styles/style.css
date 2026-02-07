@@ -1,0 +1,14 @@
+* {
+    margin :0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+nav {
+    background-color: #3498db;
+    padding: 10px 20px;
+}
+
+a {
+    color: white;
+}

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      hr {
+        margin-top: 30px;
+      }
+    </style>
+    <script type="module">
+      import { auth } from "/api/request.js";
+      import * as authApi from "/api/auth.js";
+      import * as usersApi from "/api/users.js";
+      import * as postsApi from "/api/posts.js";
+
+      authApi.getProfile();
+
+      const getUsers = async () => {
+        usersOutput.innerHTML = "Loading...";
+        const data = await usersApi.getUsers();
+
+        if (!data?.success) return (usersOutput.innerHTML = "");
+        console.log(data, "data-users");
+
+        usersOutput.innerHTML = "";
+
+        data.data.forEach((user) => {
+          const div = document.createElement("div");
+          div.textContent = `${user.name}`;
+          usersOutput.appendChild(div);
+
+          const detailsButton = document.createElement("button");
+          detailsButton.innerHTML = `<a href="/dashboard/users/${user._id}">Details</a>`;
+          usersOutput.appendChild(detailsButton);
+        });
+      };
+
+      const getPosts = async () => {
+        postsOutput.innerHTML = "Loading...";
+        const data = await postsApi.getPosts();
+
+        if (!data?.success) return (postsOutput.innerHTML = "");
+        console.log(data, "data-posts");
+
+        postsOutput.innerHTML = "";
+
+        data.data.forEach((post) => {
+          const div = document.createElement("div");
+          div.textContent = `${post.name} (${post.author})`;
+          postsOutput.appendChild(div);
+
+          const detailsButton = document.createElement("button");
+          detailsButton.innerHTML = `<a href="/dashboard/posts/${post._id}">Details</a>`;
+          postsOutput.appendChild(detailsButton);
+        });
+      };
+
+      const logout = async () => {
+        const data = await authApi.logout();
+        if (!data?.success) return;
+        console.log(data, "data-logout");
+      };
+
+      document.querySelector("button#get-users-btn").addEventListener("click", getUsers);
+      document.querySelector("button#get-posts-btn").addEventListener("click", getPosts);
+      document.querySelector("button#logout-btn").addEventListener("click", logout);
+    </script>
+  </head>
+  <body>
+    <a href="/">website</a>
+    <a href="/dashboard/profile">profile</a>
+    <a href="/dashboard/settings">settings</a>
+    <hr />
+    <h1>Dashboard</h1>
+    <hr />
+
+    <button class="" id="get-users-btn">Get users</button>
+    <br />
+    <div id="usersOutput">Empty</div>
+    <hr />
+
+    <button class="" id="get-posts-btn">Get posts</button>
+    <br />
+    <div id="postsOutput">Empty</div>
+    <hr />
+
+    <button class="" id="logout-btn">Logout</button>
+    <hr />
+  </body>
+</html>

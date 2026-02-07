@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script type="module">
+      import * as authApi from "/api/auth.js";
+
+      const handleConfirmUpdateEmail = async () => {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get("oobCode");
+        const mode = params.get("mode");
+
+        if (!token) return alert("Missing token");
+
+        const data = await authApi.confirmUpdateEmail({ token });
+        if (!data.success) return;
+        console.log(data, "data-confirm-update-email");
+        alert("Your email has been verified and changed | You can now sign in with your new email");
+      };
+
+      handleConfirmUpdateEmail();
+    </script>
+  </head>
+  <body>
+    <h1>Confirm Update Email page</h1>
+
+    <a href="/dashboard">Continue</a>
+  </body>
+</html>
