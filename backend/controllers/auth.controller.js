@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import RefreshToken from "../models/refreshToken.model.js";
 import UpdateEmailToken from "../models/updateEmailToken.model.js";
 import VerifyEmailToken from "../models/verifyEmailToken.model.js";
-import ResetPasswordToken from "../models/ResetPasswordToken.model.js";
+import ResetPasswordToken from "../models/resetPasswordToken.model.js";
 import AddPasswordToken from "../models/addPasswordToken.model.js";
 import createError from "../utils/createError.js";
 import sendEmail from "../services/email.service.js";

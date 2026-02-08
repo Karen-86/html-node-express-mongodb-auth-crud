@@ -2,7 +2,7 @@ import User from "../models/user.model.js";
 import RefreshToken from "../models/refreshToken.model.js";
 import UpdateEmailToken from "../models/updateEmailToken.model.js";
 import VerifyEmailToken from "../models/verifyEmailToken.model.js";
-import ResetPasswordToken from "../models/ResetPasswordToken.model.js";
+import ResetPasswordToken from "../models/resetPasswordToken.model.js";
 import AddPasswordToken from "../models/addPasswordToken.model.js";
 import createError from "../utils/createError.js";
 import { logout } from "./auth.controller.js";
