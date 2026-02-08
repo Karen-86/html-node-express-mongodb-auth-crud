@@ -8,13 +8,13 @@ const sendEmail = async ({ to, subject, text, html }) => {
       port: 465,
       secure: true,
       auth: {
-        user: process.env.EMAIL_USER,
+        user: process.env.EMAIL_FROM,
         pass: process.env.EMAIL_PASS,
       },
     });
 
     const mailOptions = {
-      from: `full stack app <${process.env.EMAIL_USER}>`,
+      from: `full stack app <${process.env.EMAIL_FROM}>`,
       to,
       subject,
       text: text || subject, // fallback
