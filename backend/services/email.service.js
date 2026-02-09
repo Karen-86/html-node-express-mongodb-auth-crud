@@ -2,14 +2,23 @@ import nodemailer from "nodemailer";
 
 const sendEmail = async ({ to, subject, text, html }) => {
   try {
+    // const transporter = nodemailer.createTransport({
+    //   // service: "gmail",
+    //   host: "smtp.gmail.com",
+    //   port: 465,
+    //   secure: true,
+    //   auth: {
+    //     user: process.env.EMAIL_FROM,
+    //     pass: process.env.EMAIL_PASS,
+    //   },
+    // });
     const transporter = nodemailer.createTransport({
-      // service: "gmail",
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
+      host: "smtp.sendgrid.net",
+      port: 587,
+      secure: false,
       auth: {
-        user: process.env.EMAIL_FROM,
-        pass: process.env.EMAIL_PASS,
+        user: "apikey", // <-- literally this string
+        pass: process.env.SENDGRID_API_KEY,
       },
     });
 
@@ -25,8 +34,8 @@ const sendEmail = async ({ to, subject, text, html }) => {
     console.log("Email sent:", info.messageId);
     return info;
   } catch (err) {
-    console.error("Error sending email:", err);
-    throw new Error("Email could not be sent");
+    console.error(err.response?.body || err);
+    throw err;
   }
 };
 

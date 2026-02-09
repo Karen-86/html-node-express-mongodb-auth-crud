@@ -23,8 +23,7 @@ const register = async (req, res, next) => {
 
   try {
     session.startTransaction();
-    const duplicate = await User.findOne({ email: req.filteredBody.email });
-
+    const duplicate = await User.findOne({ email: req.filteredBody.email }).select("+password");
     if (duplicate && !duplicate.password)
       throw createError("This account uses Google Sign-In. Please log in with Google.", 400);
 
@@ -77,6 +76,8 @@ const register = async (req, res, next) => {
     session.endSession();
   }
 };
+
+
 
 // @POST: /auth/login | middlewares: validate
 const login = async (req, res, next) => {
@@ -454,13 +455,13 @@ const updateEmail = async (req, res, next) => {
 const confirmUpdateEmail = async (req, res, next) => {
   const session = await mongoose.startSession();
   try {
-    session.startTransaction()
+    session.startTransaction();
     const { token } = req.query;
     if (!token) throw createError("Missing verification token", 400);
 
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    const updateEmailToken = await UpdateEmailToken.findOne({ token: hashedToken }).session(session)
+    const updateEmailToken = await UpdateEmailToken.findOne({ token: hashedToken }).session(session);
 
     // const errorMessage = `Try updating your email again | Your request to update your email has expired or the link has already been used`
 
@@ -469,24 +470,24 @@ const confirmUpdateEmail = async (req, res, next) => {
     if (updateEmailToken.expiresAt.getTime() < Date.now())
       throw createError("Try updating your email again | Verification token has expired", 400); // in case if MongoDB dont autodelete the emailToken
 
-    const user = await User.findById(updateEmailToken.userId).session(session)
+    const user = await User.findById(updateEmailToken.userId).session(session);
     if (!user) throw createError("User not found", 404);
 
     if (!updateEmailToken.newEmail) throw createError("Invalid email change request", 400);
 
-    const duplicate = await User.findOne({ email: updateEmailToken.newEmail }).session(session)
+    const duplicate = await User.findOne({ email: updateEmailToken.newEmail }).session(session);
     if (duplicate) throw createError("Email already in use", 409);
 
     user.email = updateEmailToken.newEmail;
     user.emailVerified = true;
-    await user.save({session});
+    await user.save({ session });
 
     await Promise.all([
       VerifyEmailToken.deleteOne({ userId: user._id }).session(session),
       UpdateEmailToken.deleteOne({ userId: user._id }).session(session),
     ]);
 
-    await session.commitTransaction()
+    await session.commitTransaction();
 
     const { password, ...filteredUser } = user.toObject();
     res.status(200).json({
@@ -495,10 +496,10 @@ const confirmUpdateEmail = async (req, res, next) => {
       data: null,
     });
   } catch (err) {
-    await session.abortTransaction()
+    await session.abortTransaction();
     next(err);
   } finally {
-    session.endSession()
+    session.endSession();
   }
 };
 
@@ -655,8 +656,8 @@ const googleCallback = async (req, res, next) => {
     if (existingUser) {
       if (!existingUser.emailVerified && existingUser.password) existingUser.password = null;
       if (!existingUser.emailVerified) existingUser.emailVerified = true;
-      if (!existingUser.avatar) existingUser.avatar = payload.picture
-      
+      if (!existingUser.avatar) existingUser.avatar = payload.picture;
+
       existingUser.providerData = existingUser.providerData || [];
 
       const hasGoogle = existingUser.providerData.some((p) => p.providerId === "google" && p.uid === payload.sub);
