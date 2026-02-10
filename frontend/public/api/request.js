@@ -5,8 +5,8 @@ export const auth = {
 };
 
 const urls = {
-  // apiApp: "https://html-node-express-mongodb-auth-crud-xqo4.onrender.com/api/v1",
-  apiApp: "http://localhost:8000/api/v1",
+  // apiApp: "https://html-node-express-mongodb-auth-crud-xqo4.onrender.com/api/v1", // production
+  apiApp: "http://localhost:8000/api/v1", // development
 };
 
 export function createHeaders() {
