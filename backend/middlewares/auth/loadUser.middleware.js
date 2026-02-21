@@ -1,4 +1,4 @@
-import User from "../../models/user.model.js";
+import User from "../../modules/users/user.model.js";
 import createError from "../../utils/createError.js";
 import * as cookies from "../../utils/cookies.js";
 

@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      hr {
+        margin-top: 30px;
+      }
+    </style>
+    <script type="module">
+      import { auth } from "/api/request.js";
+      import * as authApi from "/api/auth.js";
+      import * as galleriesApi from "/api/galleries.js";
+
+      (async function () {
+        await authApi.getProfile();
+        getGallery();
+      })();
+
+      let GALLERY = {};
+
+      const getGallery = async () => {
+        const data = await galleriesApi.getGalleries({ userId: auth.currentUser._id });
+        if (!data?.success) return;
+        GALLERY = data.data[0];
+        console.log(data, "data-gallery");
+
+        document
+          .querySelectorAll("img.gallery-image")
+          .forEach((image) => (image.src = "/assets/images/post-placeholder.jpg"));
+
+        if (!data.data.length) return;
+        data.data[0].images.forEach((image) => {
+          document.querySelector(`.gallery-image-${image.index + 1}`).src = image.url;
+        });
+      };
+
+      const handleCreateGallery = async (e) => {
+        const body = new FormData();
+        const image = e.target.files[0];
+        const index = e.target.dataset.index;
+
+        if (image) body.append("image", image);
+        body.append("index", index);
+
+        const data = await galleriesApi.createGallery({ body });
+        if (!data.success) return;
+
+        alert(data.message || "gallery image uploaded");
+        console.log(data, "data-uploaded-image");
+        getGallery();
+      };
+
+      const handleUpdateGallery = async (e) => {
+        if (!GALLERY) return handleCreateGallery(e);
+        const body = new FormData();
+        const image = e.target.files[0];
+        const index = e.target.dataset.index;
+
+        const oldImage = GALLERY.images.find((image) => image.index == e.target.dataset.index);
+
+        let imageId;
+
+        if (oldImage) imageId = oldImage._id;
+
+        body.append("image", image);
+        body.append("index", index);
+        if (imageId) body.append("imageId", imageId);
+
+        const data = await galleriesApi.updateGallery({ id: GALLERY._id, body });
+
+        if (!data?.success) return;
+
+        alert(data.message || "Gallery image update");
+        console.log(data, "data-updated-gallery");
+        getGallery();
+      };
+
+      const handleDeleteGallery = async () => {
+        const data = await galleriesApi.deleteGallery({ id: GALLERY._id });
+        if (!data?.success) return;
+        alert(data.message || "Gallery deleted");
+        console.log(data, "data-deleted-gallery");
+        getGallery();
+      };
+
+      const handleDeleteGalleryImage = async (e) => {
+        const galleryId = GALLERY._id;
+        const imageId = GALLERY.images.find((image) => image.index == e.target.dataset.index)._id;
+
+        const data = await galleriesApi.deleteGalleryImage({ galleryId, imageId });
+        if (!data?.success) return;
+        alert(data.message || "Gallery image deleted");
+        console.log(data, "data-deleted-gallery-image");
+        getGallery();
+      };
+
+      const handleDeleteSelectedGalleryImages = async (e) => {
+        const galleryId = GALLERY._id;
+
+        const selectedImages = GALLERY.images.filter((image) =>
+          document.querySelector(`input.gallery-checkbox[data-index="${image.index}"]:checked`),
+        );
+
+        const body = {};
+        body.images = selectedImages;
+
+        const data = await galleriesApi.deleteSelectedGalleryImages({ galleryId, body });
+        if (!data?.success) return;
+        alert(data.message || "Gallery image deleted");
+        console.log(data, "data-deleted-selected-gallery-images");
+        getGallery();
+      };
+
+      const handleDeleteAllGalleryImages = async (e) => {
+        const galleryId = GALLERY._id;
+
+        const data = await galleriesApi.deleteAllGalleryImages({galleryId});
+        if (!data?.success) return;
+        alert(data.message || "Gallery image deleted");
+        console.log(data, "data-deleted-all-gallery-images");
+        getGallery();
+      };
+
+      document.querySelector("button#get-gallery-btn").addEventListener("click", getGallery);
+
+      document.querySelectorAll(".gallery-upload-input").forEach((input) => {
+        // input.addEventListener("change", handleCreateGallery); // create
+        input.addEventListener("change", handleUpdateGallery); // update
+      });
+      document.querySelectorAll(".gallery-delete-button").forEach((input) => {
+        input.addEventListener("click", handleDeleteGalleryImage);
+      });
+
+      document
+        .querySelector("#selected-images-delete-btn")
+        .addEventListener("click", handleDeleteSelectedGalleryImages);
+
+      document
+        .querySelector("#all-images-delete-btn")
+        .addEventListener("click", handleDeleteAllGalleryImages);
+
+      document.querySelector("button#delete-gallery-btn").addEventListener("click", handleDeleteGallery);
+    </script>
+  </head>
+  <body>
+    <a href="/dashboard">Dashboard</a>
+
+    <hr />
+    <h1>Gallery</h1>
+
+    <hr />
+    <h2>upload/delete gallery</h2>
+
+    <table style="max-width: 500px;">
+      <tr style="border-collapse: collapse;">
+        <td>
+          <img
+            src="/assets/images/post-placeholder.jpg"
+            class="gallery-image gallery-image-1"
+            style="width: 50px; height: 50px; object-fit: cover"
+          />
+          <input class="gallery-upload-input" type="file" accept="image/*" data-index="0" />
+        </td>
+        <td>
+          <input class="gallery-checkbox" type="checkbox" data-index="0" />
+        </td>
+        <td>
+          <button class="gallery-delete-button" data-index="0">Delete</button>
+        </td>
+      </tr>
+
+      <tr style="border-collapse: collapse;">
+        <td>
+          <img
+            src="/assets/images/post-placeholder.jpg"
+            class="gallery-image gallery-image-2"
+            style="width: 50px; height: 50px; object-fit: cover"
+          />
+          <input class="gallery-upload-input" type="file" accept="image/*" data-index="1" />
+        </td>
+        <td>
+          <input class="gallery-checkbox" type="checkbox" data-index="1" />
+        </td>
+        <td>
+          <button class="gallery-delete-button" data-index="1">Delete</button>
+        </td>
+      </tr>
+
+      <tr style="border-collapse: collapse;">
+        <td>
+          <img
+            src="/assets/images/post-placeholder.jpg"
+            class="gallery-image gallery-image-3"
+            style="width: 50px; height: 50px; object-fit: cover"
+          />
+          <input class="gallery-upload-input" type="file" accept="image/*" data-index="2" />
+        </td>
+        <td>
+          <input class="gallery-checkbox" type="checkbox" data-index="2" />
+        </td>
+        <td>
+          <button class="gallery-delete-button" data-index="2">Delete</button>
+        </td>
+      </tr>
+      <br />
+
+      <tr style="">
+        <td>
+          <img
+            src="/assets/images/post-placeholder.jpg"
+            class="gallery-image gallery-image-4"
+            style="width: 50px; height: 50px; object-fit: cover"
+          />
+          <input class="gallery-upload-input" type="file" accept="image/*" data-index="3" />
+        </td>
+        <td>
+          <input class="gallery-checkbox" type="checkbox" data-index="3" />
+        </td>
+        <td>
+          <button class="gallery-delete-button" data-index="3">Delete</button>
+        </td>
+      </tr>
+
+      <tr style="">
+        <td></td>
+        <td>
+          <div style="zoom: 1.5; cursor: pointer" class="" id="selected-images-delete-btn">🗑</div>
+        </td>
+        <td></td>
+      </tr>
+
+      <tr style="">
+        <td>
+          <button style="display: block" class="" id="all-images-delete-btn">Delete all images</button>
+        </td>
+      </tr>
+    </table>
+
+    <br />
+
+    <hr />
+    <button class="" id="delete-gallery-btn">Delete gallery</button>
+    <button class="" id="get-gallery-btn">Get gallery</button>
+  </body>
+</html>

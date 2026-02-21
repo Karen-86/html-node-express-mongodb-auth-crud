@@ -11,7 +11,7 @@ const refreshTokenSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    userEmail: {
+    author: {
       type: String,
       lowercase: true,
       required: true,

@@ -8,7 +8,7 @@ const resetPasswordTokenSchema = new mongoose.Schema(
       index: true,
       required: true,
     },
-    userEmail: {
+    author: {
       type: String,
       lowercase: true,
       required: true

@@ -14,6 +14,7 @@
       import { auth } from "/api/request.js";
       import * as usersApi from "/api/users.js";
       import * as authApi from "/api/auth.js";
+      import * as galleriesApi from "/api/galleries.js";
 
       authApi.getProfile();
       let TARGETUSER = {};
@@ -33,10 +34,13 @@
         if (!data?.success) return (userOutput.innerHTML = "");
 
         console.log(data, "data-user");
+        getGallery();
 
         TARGETUSER = data.data;
 
         userOutput.innerHTML = `
+           <img src="${data.data.avatar || "/assets/images/avatar-placeholder.png"}" style='width:100px;height:100px;object-fit:cover' />
+
             <ul>
                 <li>
                     <strong>Name: </strong> ${data.data.name}
@@ -65,6 +69,18 @@
         });
       };
       getUser();
+
+      const getGallery = async () => {
+        const data = await galleriesApi.getGalleries({ userId: getId() });
+
+        if (!data?.success) return;
+        console.log(data, "data-gallery");
+
+        if (!data.data.length) return;
+        data.data[0].images.forEach((image) => {
+          document.querySelector(`.gallery-image-${image.index + 1}`).src = image.url;
+        });
+      };
 
       const handleUpdateRole = (e) => {
         let roles = [...TARGETUSER.roles];
@@ -104,6 +120,29 @@
     <hr />
 
     <div id="userOutput">Empty</div>
+
+    <div class="gallery" style="border: 1px solid lightgray; padding: 3px; display: inline-block">
+      <img
+        src="/assets/images/post-placeholder.jpg"
+        class="gallery-image gallery-image-1"
+        style="width: 50px; height: 50px; object-fit: cover"
+      />
+      <img
+        src="/assets/images/post-placeholder.jpg"
+        class="gallery-image gallery-image-2"
+        style="width: 50px; height: 50px; object-fit: cover"
+      />
+      <img
+        src="/assets/images/post-placeholder.jpg"
+        class="gallery-image gallery-image-3"
+        style="width: 50px; height: 50px; object-fit: cover"
+      />
+      <img
+        src="/assets/images/post-placeholder.jpg"
+        class="gallery-image gallery-image-4"
+        style="width: 50px; height: 50px; object-fit: cover"
+      />
+    </div>
 
     <hr />
     <h1>Update Roles <span style="font-size: 12px">(hidden from regular users)</span></h1>

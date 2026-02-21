@@ -12,7 +12,7 @@ export const limiter = rateLimit({
   },
 });
 
-export const loginLimiter = rateLimit({
+export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15min,
   max: 30,
   handler: (req, res) => {

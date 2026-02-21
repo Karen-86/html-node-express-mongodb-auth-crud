@@ -1,15 +1,15 @@
-import User from "../models/user.model.js";
+import User from "../users/user.model.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import RefreshToken from "../models/refreshToken.model.js";
-import UpdateEmailToken from "../models/updateEmailToken.model.js";
-import VerifyEmailToken from "../models/verifyEmailToken.model.js";
-import ResetPasswordToken from "../models/resetPasswordToken.model.js";
-import AddPasswordToken from "../models/addPasswordToken.model.js";
-import createError from "../utils/createError.js";
-import sendEmail from "../services/email.service.js";
-import * as cookies from "../utils/cookies.js";
+import RefreshToken from "../../models/refreshToken.model.js";
+import UpdateEmailToken from "../../models/updateEmailToken.model.js";
+import VerifyEmailToken from "../../models/verifyEmailToken.model.js";
+import ResetPasswordToken from "../../models/resetPasswordToken.model.js";
+import AddPasswordToken from "../../models/addPasswordToken.model.js";
+import createError from "../../utils/createError.js";
+import sendEmail from "../../services/email.service.js";
+import * as cookies from "../../utils/cookies.js";
 import { OAuth2Client } from "google-auth-library";
 import mongoose from "mongoose";
 
@@ -47,7 +47,7 @@ const register = async (req, res, next) => {
         {
           token: refreshToken,
           userId: createdUser._id,
-          userEmail: createdUser.email,
+          author: createdUser.email,
           expiresAt: Date.now() + MAX_SESSION_LIFETIME,
         },
       ],
@@ -106,7 +106,7 @@ const login = async (req, res, next) => {
     await RefreshToken.create({
       token: refreshToken,
       userId: filteredUser._id,
-      userEmail: filteredUser.email,
+      author: filteredUser.email,
       expiresAt: Date.now() + MAX_SESSION_LIFETIME,
     });
 
@@ -257,7 +257,7 @@ const addPassword = async (req, res, next) => {
     await AddPasswordToken.deleteOne({ userId: user._id });
     await AddPasswordToken.create({
       userId: user._id,
-      userEmail: user.email,
+      author: user.email,
       token: hashedToken,
       expiresAt: Date.now() + 1000 * 60 * 60 * 24, // 24hr
     });
@@ -335,7 +335,7 @@ const verifyEmail = async (req, res, next, { silent = false } = {}) => {
     await VerifyEmailToken.deleteOne({ userId: user._id });
     await VerifyEmailToken.create({
       userId: user._id,
-      userEmail: user.email,
+      author: user.email,
       token: hashedToken,
       expiresAt: Date.now() + 1000 * 60 * 60 * 24, // 24hr
     });
@@ -423,7 +423,7 @@ const updateEmail = async (req, res, next) => {
     await UpdateEmailToken.deleteOne({ userId: user._id });
     await UpdateEmailToken.create({
       userId: user._id,
-      userEmail: user.email,
+      author: user.email,
       newEmail: newEmail,
       token: hashedToken,
       expiresAt: Date.now() + 1000 * 60 * 60 * 24, // 24hr
@@ -518,7 +518,7 @@ const forgotPassword = async (req, res, next) => {
     await ResetPasswordToken.deleteOne({ userId: existingUser._id });
     await ResetPasswordToken.create({
       userId: existingUser._id,
-      userEmail: existingUser.email,
+      author: existingUser.email,
       token: hashedToken,
       expiresAt: Date.now() + 1000 * 60 * 60 * 24, // 24hr
     });
@@ -699,7 +699,7 @@ const googleCallback = async (req, res, next) => {
     await RefreshToken.create({
       token: refreshToken,
       userId: filteredUser._id,
-      userEmail: filteredUser.email,
+      author: filteredUser.email,
       expiresAt: Date.now() + MAX_SESSION_LIFETIME,
     });
 

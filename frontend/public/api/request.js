@@ -5,14 +5,15 @@ export const auth = {
 };
 
 const urls = {
-  // apiApp: "https://html-node-express-mongodb-auth-crud-xqo4.onrender.com/api/v1", // production
-  apiApp: "http://localhost:8000/api/v1", // development
+  apiApp: "https://html-node-express-mongodb-auth-crud-xqo4.onrender.com/api/v1", // production
+  // apiApp: "http://localhost:8000/api/v1", // development
 };
 
-export function createHeaders() {
-  const headers = {
-    "Content-Type": "application/json",
-  };
+export function createHeaders({isFormData = false}={}) {
+  const headers = {};
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
 
   return headers;
 }
@@ -42,7 +43,7 @@ api.interceptors.response.use(
         // retry original request
         return api(original);
       } catch (err) {
-        err.interceptorsError = true
+        err.interceptorsError = true;
         return Promise.reject(err);
       }
     }
@@ -68,7 +69,8 @@ export default async function request(options) {
     // Server responded (4xx / 5xx)
     if (err.response) {
       console.log("server response: ", err.response.data);
-      if (err.response?.data?.message !== "jwt expired" && !url.endsWith("/auth/me")) alert(err.response.data.message || "Error");
+      if (err.response?.data?.message !== "jwt expired" && !url.endsWith("/auth/me"))
+        alert(err.response.data.message || "Error");
       if (err.response?.data?.message === "Session expired or user no longer exists") {
         localStorage.removeItem("accessToken");
         // window.location.href = "/login";

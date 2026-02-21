@@ -8,7 +8,7 @@ const postSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: true,
+     
     },
     userId: {
       type: mongoose.Types.ObjectId,
@@ -23,6 +23,9 @@ const postSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    cover: {
+      type: String,
+    }
   },
   {
     timestamps: true,

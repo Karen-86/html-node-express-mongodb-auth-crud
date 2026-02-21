@@ -17,14 +17,14 @@ export async function getPost({ id, cb } = {}) {
 export async function createPost({ body, cb } = {}) {
   console.log("create post");
   const url = "/posts";
-  const headers = createHeaders();
+  const headers = createHeaders({ isFormData: true });
   return await request({ url, method: "POST", headers, body, cb });
 }
 
 export async function updatePost({ id, body, cb } = {}) {
   console.log("update post");
   const url = `/posts/${id}`;
-  const headers = createHeaders();
+  const headers = createHeaders({ isFormData: true });
   return await request({ url, method: "PATCH", headers, body, cb });
 }
 

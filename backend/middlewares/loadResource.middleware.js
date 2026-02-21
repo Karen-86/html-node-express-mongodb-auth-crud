@@ -2,16 +2,16 @@ import mongoose from "mongoose";
 import createError from "../utils/createError.js";
 
 const loadResource =
-  (Model, reqKey = "resource", selectFields = "") =>
+  ({ paramKey = "id", reqKey = "resource", Model, selectFields = "" }) =>
   async (req, _, next) => {
-    const id = req.params.id;
+    const id = req.params[paramKey];
 
-    if (!mongoose.Types.ObjectId.isValid(id)) return next(createError("Invalid ID",400))
+    if (!mongoose.Types.ObjectId.isValid(id)) return next(createError("Invalid ID", 400));
 
     const query = selectFields ? Model.findById(id).select(selectFields) : Model.findById(id);
     const existingResource = await query;
 
-    if (!existingResource) return next(createError(`${Model.modelName} not found`,404))
+    if (!existingResource) return next(createError(`${Model.modelName} not found`, 404));
 
     req[reqKey] = existingResource;
 

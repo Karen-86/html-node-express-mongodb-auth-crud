@@ -1,5 +1,5 @@
-import Post from "../models/post.model.js";
-import createError from '../utils/createError.js'
+import Post from "./post.model.js";
+import createError from "../../utils/createError.js";
 
 // @GET: /posts | middlewares: isAuthenticated
 const getPosts = async (_, res, next) => {
@@ -18,7 +18,6 @@ const getPosts = async (_, res, next) => {
 
 // @GET: /posts/:id | middlewares: isAuthenticated, loadUser, loadResource
 const getPost = async (req, res, next) => {
-
   const post = req.post;
 
   try {
@@ -34,12 +33,16 @@ const getPost = async (req, res, next) => {
 
 // @POST: /posts/:id | middlewares: isAuthenticated, validate, loadUser
 const createPost = async (req, res, next) => {
-
   try {
     const date = req.filteredBody.date ? new Date(req.filteredBody.date) : new Date();
-    if (isNaN(date)) throw createError('Invalid date', 400)
+    if (isNaN(date)) throw createError("Invalid date", 400);
 
-    const createdPost = await Post.create({ ...req.filteredBody, userId: req.user._id.toString(), author: req.user.name, date });
+    const createdPost = await Post.create({
+      ...req.filteredBody,
+      userId: req.user._id.toString(),
+      author: req.user.email,
+      date,
+    });
 
     res.status(201).json({
       success: true,
@@ -72,7 +75,6 @@ const updatePost = async (req, res, next) => {
 
 // @DELETE: /posts/:id | middlewares: isAuthenticated, loadUser, loadResource, isResourceOwner
 const deletePost = async (req, res, next) => {
-
   try {
     const post = req.post;
 

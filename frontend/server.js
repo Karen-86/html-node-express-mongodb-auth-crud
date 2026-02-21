@@ -81,6 +81,10 @@ app.get("/dashboard/posts/:id", (req, res) => {
   res.sendFile(join(__dirname, "public", "pages", "dashboard", "post-details.html"));
 });
 
+app.get("/dashboard/galleries/:id", (req, res) => {
+  res.sendFile(join(__dirname, "public", "pages", "dashboard", "gallery-details.html"));
+});
+
 // 404
 app.use((req, res) => {
   res.status(404).sendFile(join(__dirname, "public", "pages", "not-found.html"));

@@ -16,8 +16,8 @@ import {
   resetPassword,
   googleAuth,
   googleCallback
-} from "../controllers/auth.controller.js";
-import validate from "../middlewares/validate.middleware.js";
+} from "./auth.controller.js";
+import validate from "../../middlewares/validate.middleware.js";
 import {
   registerUserSchema,
   loginUserSchema,
@@ -26,17 +26,23 @@ import {
   updateEmailSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
-} from "../utils/validators/auth.validator.js";
-import loadUser from "../middlewares/auth/loadUser.middleware.js";
-import isAuthenticated from "../middlewares/auth/isAuthenticated.middleware.js";
+} from "./auth.validator.js";
+import loadUser from "../../middlewares/auth/loadUser.middleware.js";
+import isAuthenticated from "../../middlewares/auth/isAuthenticated.middleware.js";
+import { authLimiter, limiter } from "../../utils/rateLimiters.js";
 
 const router = express.Router();
+
+/* ---------- LIGHT LIMIT ---------- */
+router.get("/me", limiter, isAuthenticated, loadUser(), getProfile);
+
+/* ---------- HEAVY LIMIT ---------- */
+router.use(authLimiter)
 
 router.post("/register", validate(registerUserSchema), register);
 router.post("/login", validate(loginUserSchema), login);
 router.post("/refresh", refresh);
 router.delete("/logout", isAuthenticated, loadUser(), logout);
-router.get("/me", isAuthenticated, loadUser(), getProfile);
 
 router.patch("/update-password", isAuthenticated, validate(updatePasswordSchema), loadUser("+password -email"), updatePassword);
 
