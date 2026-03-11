@@ -43,12 +43,12 @@ router.get("/:id", loadResource({ Model: Post, reqKey: "post" }), getPost); // a
 // router.get(
 //   "/:id",
 //   loadUser(),
-//   loadResource({Model: Post, reqKey: "post"}),
-//   async (req, res, next) => {
-//     req.foundUser = await User.findById(req.post.userId);
-//     if (!req.foundUser) return next(createError("Target user not found", 404));
-//     next();
-//   },
+//   loadResource({ Model: Post, reqKey: "post" }),
+//     loadResource({
+//     Model: User,
+//     reqKey: "foundUser",
+//     getId: (req) => req.post.userId.toString(),
+//   }),
 //   checkRoleHierarchy({ allowOwner: true }),
 //   getPost,
 // ); // allowed only if owner or (target user < acting user)
@@ -79,11 +79,18 @@ router.patch(
   isResourceOwner("post"),
   updatePost,
 );
+
 router.delete(
   "/:id",
   loadUser(),
   loadResource({ Model: Post, reqKey: "post" }),
-  anyOf(isResourceOwner("post"), allowRoles("superAdmin")),
+  loadResource({
+    Model: User,
+    reqKey: "foundUser",
+    getId: (req) => req.post.userId.toString(),
+    ignoreNotFound: true
+  }),
+  checkRoleHierarchy({ allowOwner: true, ignoreNotFound: true }),
   deletePost,
 );
 

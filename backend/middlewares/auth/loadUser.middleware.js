@@ -11,9 +11,7 @@ const loadUser =
 
     if (!existingUser) {
       await cookies.clearRefreshToken({ req, res });
-      const err = new Error("Session expired or user no longer exists");
-      err.statusCode = 401;
-      return next(err);
+      return next(createError("Session expired or user no longer exists", 401))
     }
 
     req.user = existingUser;

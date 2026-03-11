@@ -8,8 +8,8 @@ export const updateUserSchema = Joi.object({
   .min(1)
   .options({ abortEarly: false });
 
-export const updateUserByAdminSchema = Joi.object({
-  roles: Joi.array().items(Joi.string().valid("user", "admin", "superAdmin"))
+export const updateUserRolesSchema = Joi.object({
+  roles: Joi.array().items(Joi.string().valid("user", "admin"))
 })
   .min(1)
   .options({ abortEarly: false });

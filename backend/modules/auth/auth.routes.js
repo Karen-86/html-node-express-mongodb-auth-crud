@@ -15,7 +15,7 @@ import {
   forgotPassword,
   resetPassword,
   googleAuth,
-  googleCallback
+  googleCallback,
 } from "./auth.controller.js";
 import validate from "../../middlewares/validate.middleware.js";
 import {
@@ -37,14 +37,20 @@ const router = express.Router();
 router.get("/me", limiter, isAuthenticated, loadUser(), getProfile);
 
 /* ---------- HEAVY LIMIT ---------- */
-router.use(authLimiter)
+router.use(authLimiter);
 
 router.post("/register", validate(registerUserSchema), register);
 router.post("/login", validate(loginUserSchema), login);
 router.post("/refresh", refresh);
 router.delete("/logout", isAuthenticated, loadUser(), logout);
 
-router.patch("/update-password", isAuthenticated, validate(updatePasswordSchema), loadUser("+password -email"), updatePassword);
+router.patch(
+  "/update-password",
+  isAuthenticated,
+  validate(updatePasswordSchema),
+  loadUser("+password -email"),
+  updatePassword,
+);
 
 router.patch("/add-password", isAuthenticated, validate(addPasswordSchema), loadUser("+password"), addPassword);
 router.patch("/confirm-add-password", confirmAddPassword);

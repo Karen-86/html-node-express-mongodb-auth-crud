@@ -1,8 +1,8 @@
 import express from "express";
-import { getUsers, getUser, updateUser, deleteUser, updateUserByAdmin } from "./user.controller.js";
+import { getUsers, getUser, updateUser, deleteUser, updateUserRoles } from "./user.controller.js";
 import User from "./user.model.js";
 import validate from "../../middlewares/validate.middleware.js";
-import { updateUserSchema, updateUserByAdminSchema } from "./users.validator.js";
+import { updateUserSchema, updateUserRolesSchema } from "./users.validator.js";
 import isAuthenticated from "../../middlewares/auth/isAuthenticated.middleware.js";
 import isOwner from "../../middlewares/auth/isOwner.middleware.js";
 import allowRoles from "../../middlewares/auth/allowRoles.middleware.js";
@@ -43,12 +43,12 @@ router.delete(
 );
 
 router.patch(
-  "/update-user-by-admin/:id",
-  validate(updateUserByAdminSchema),
+  "/:id/roles",
+  validate(updateUserRolesSchema),
   loadUser(),
   loadResource({ Model: User, reqKey: "foundUser" }),
   checkRoleHierarchy(),
-  updateUserByAdmin,
+  updateUserRoles,
 );
 
 export default router;

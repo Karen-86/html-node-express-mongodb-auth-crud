@@ -82,7 +82,7 @@
         });
       };
 
-      const handleUpdateRole = (e) => {
+      const handleUpdateUserRoles = (e) => {
         let roles = [...TARGETUSER.roles];
         const value = e.target.dataset.value;
         const isChecked = e.target.checked;
@@ -92,7 +92,7 @@
         } else {
           roles = roles.filter((role) => role !== value);
         }
-        usersApi.updateUserByAdmin({
+        usersApi.updateUserRoles({
           id: getId(),
           body: { roles },
           cb: (data) => {
@@ -108,7 +108,7 @@
 
       const checkboxes = document.querySelectorAll("input[type='checkbox']");
       checkboxes.forEach((checkbox) => {
-        checkbox.addEventListener("change", handleUpdateRole);
+        checkbox.addEventListener("change", handleUpdateUserRoles);
       });
     </script>
   </head>

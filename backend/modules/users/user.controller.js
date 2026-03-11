@@ -93,11 +93,11 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-// @PATCH: /users/update-user-by-admin/:id | middlewares:  isAuthenticated, validate, loadUser, checkRoleHierarchy
-const updateUserByAdmin = async (req, res, next) => {
+// @PATCH: /users/:id/roles | middlewares:  isAuthenticated, validate, loadUser, checkRoleHierarchy
+const updateUserRoles = async (req, res, next) => {
   try {
     const newRoles = req.filteredBody.roles;
-    if (newRoles.includes("superAdmin")) throw createError("Action forbidden: insufficient privileges.");
+    // if (newRoles.includes("superAdmin")) throw createError("Action forbidden: insufficient privileges.");
     req.foundUser.roles = newRoles;
     await req.foundUser.save();
 
@@ -111,4 +111,4 @@ const updateUserByAdmin = async (req, res, next) => {
   }
 };
 
-export { getUsers, getUser, updateUser, deleteUser, updateUserByAdmin };
+export { getUsers, getUser, updateUser, deleteUser, updateUserRoles };

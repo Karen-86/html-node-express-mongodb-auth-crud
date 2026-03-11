@@ -9,7 +9,7 @@ const urls = {
   // apiApp: "http://localhost:8000/api/v1", // development
 };
 
-export function createHeaders({isFormData = false}={}) {
+export function createHeaders({ isFormData = false } = {}) {
   const headers = {};
   if (!isFormData) {
     headers["Content-Type"] = "application/json";
@@ -37,7 +37,10 @@ api.interceptors.response.use(
       original._retry = true;
 
       try {
-        const res = await axios.post(urls.apiApp + "/auth/refresh", null, { withCredentials: true });
+        
+        const res = await axios.post(urls.apiApp + "/auth/refresh", null, {
+          withCredentials: true,
+        });
         localStorage.setItem("accessToken", res.data.accessToken);
 
         // retry original request

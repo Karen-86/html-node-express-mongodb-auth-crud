@@ -14,7 +14,7 @@ import { OAuth2Client } from "google-auth-library";
 import mongoose from "mongoose";
 
 const MAX_SESSION_LIFETIME = 7 * 24 * 60 * 60 * 1000; // 7 days
-const ACCESS_TOKEN_LIFETIME = "15m"; // 15 min
+const ACCESS_TOKEN_LIFETIME = "15min"; // 15 min
 const REFRESH_TOKEN_LIFETIME = "1d"; // 1 day
 
 // @POST: /auth/register | middlewares: validate
@@ -76,8 +76,6 @@ const register = async (req, res, next) => {
     session.endSession();
   }
 };
-
-
 
 // @POST: /auth/login | middlewares: validate
 const login = async (req, res, next) => {

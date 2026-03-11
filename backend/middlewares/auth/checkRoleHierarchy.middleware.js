@@ -12,11 +12,12 @@ const getHighestRoleLevel = (roles = [], roleHierarchy = {}) => {
 };
 
 const checkRoleHierarchy =
-  ({ allowOwner = false, roleHierarchy = hierarchy } = {}) =>
+  ({ allowOwner = false, roleHierarchy = hierarchy, ignoreNotFound = false } = {}) =>
   (req, res, next) => {
     const actingUser = req.user;
     const targetUser = req.foundUser;
 
+    if (!targetUser && ignoreNotFound && getHighestRoleLevel(actingUser.roles, roleHierarchy) > 1) return next();
 
     if (!actingUser || !targetUser) return next(createError("User(s) not found", 404));
 
